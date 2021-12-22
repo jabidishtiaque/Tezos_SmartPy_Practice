@@ -41,3 +41,23 @@ class Cryptobot(sp.Contract):
         )
 
         self.data.name = new_name
+
+
+    @sp.entry_point
+    def move_horizontally(self, update_to):
+        sp.verify(
+            self.data.bot_manager == sp.sender, 
+            message = "Error: non manager call"
+        )
+            
+        self.data.coordinate_x += update_to
+    
+    @sp.entry_point
+    def move_vertically(self, update_to):
+        
+        sp.verify(
+            self.data.bot_manager == sp.sender, 
+            message = "Error: non manager call"
+        )
+            
+        self.data.coordinate_y += update_to
