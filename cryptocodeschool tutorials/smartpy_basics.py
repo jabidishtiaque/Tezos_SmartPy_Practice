@@ -61,3 +61,20 @@ class Cryptobot(sp.Contract):
         )
             
         self.data.coordinate_y += update_to
+
+
+    @sp.entry_point
+    def shoot_alien(self, alien_type):
+        
+        sp.verify(
+            self.data.bot_manager == sp.sender, 
+            message = "Error: non manager call"
+        )
+
+        ### SmartPy’s 'sp.if..sp.else' statements let us execute decision making with contract’s latest values in it’s storage. 
+        sp.if self.data.plasma_bullet_count >= 1:
+            self.data.plasma_bullet_count -= 1
+            self.data.record_alien_kills[alien_type] += 1
+        sp.else:
+            # If the condition fails, we use 'sp.failwith' - a SmartPy helper method - to send back a relevant error message
+            sp.failwith("Error: you ran out of bullets! Please buy more!")
