@@ -78,3 +78,40 @@ class Cryptobot(sp.Contract):
         sp.else:
             # If the condition fails, we use 'sp.failwith' - a SmartPy helper method - to send back a relevant error message
             sp.failwith("Error: you ran out of bullets! Please buy more!")
+
+
+### Testing let’s us simulate how the smart contract will behave when finally deployed. 
+#   A test environment is added at the end of the smart contract’s code. 
+#   We add '@sp.add_test' decorator with a name variable to instruct the compiler that the code block after this will be used for testing
+@sp.add_test(name = "Ending")
+
+# the decorator follows the test function definition that creates the testing environment.
+def test():
+
+    # creating a scenario let’s us create a boxed simulation environment where we can test our smart contract
+    scenario = sp.test_scenario()
+    
+    ## Class Invokation
+    my_address = sp.address("tz1Syu3KacZ8cy4286a4vaCeoMtwqVKHkaoj")
+    
+    # we first create a new initialized instance contract from the Contract class and store it in test_bot
+    test_bot =  Cryptobot(manager_address = my_address, life_state = True)
+    
+    # add the contract to the simulation environment created before
+    scenario += test_bot
+    
+    # calling the change_name entry point function on test_bot, which is an instance of Cryptobot
+    scenario += test_bot.change_name("punky terminator").run(sender = my_address)
+    
+    # we can use '.verify' in testing environment as well to cross-check specific data 
+    scenario.verify(test_bot.data.is_alive == True)
+    
+    # '.run' method after the entry function tells the function that we are calling it with sender value as 
+    # my address. It takes this value to the function definition as verifies there using 'sp.verify'
+    scenario += test_bot.move_horizontally(2).run(sender = my_address)
+    
+    scenario += test_bot.move_vertically(1).run(sender = my_address)
+    
+    scenario += test_bot.shoot_alien("simple_alien").run(sender = my_address)
+    
+    scenario += test_bot.shoot_alien("boss_alien").run(sender = my_address)
